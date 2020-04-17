@@ -3,52 +3,40 @@
   <div class="search" :class="{active: isfocus}">
     <!-- 搜索框 -->
     <div class="input-wrap" @click="goSearch">
-      <input type="text" placeholder="请输入搜索商品梁晓丽">
+      <input type="text" 
+      v-model="keyWords"
+       @input="query" 
+       @confirm="goList"
+       placeholder="请输入搜索商品梁晓丽">
       <span class="cancle" @click.stop="goCancel">取消</span>
     </div>
     <!-- 搜索结果 -->
     <div class="search-content">
       <div class="title">搜索历史<span class="clear"></span></div>
       <div class="history">
-        <navigator url="/pages/list/index">小米</navigator>
-        <navigator url="/pages/list/index">智能电视</navigator>
-        <navigator url="/pages/list/index">小米空气净化器</navigator>
-        <navigator url="/pages/list/index">西门子洗碗机</navigator>
-        <navigator url="/pages/list/index">华为手机</navigator>
-        <navigator url="/pages/list/index">苹果</navigator>
-        <navigator url="/pages/list/index">锤子</navigator>
+        <navigator url="/pages/list/index"
+         v-for="(item ,index) in history" :key="index"
+         >{{item}}</navigator>
+       
       </div>
       <!-- 结果 -->
-      <scroll-view scroll-y class="result">
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
-        <navigator url="/pages/goods/index">小米</navigator>
+      <scroll-view scroll-y class="result" v-if="list.length>0">
+        <navigator v-for="item in list" :key="item.goods_id" url="/pages/goods/index">{{item.goods_name}}</navigator>        
       </scroll-view>
     </div>
   </div>
 </template>
 
-<script>
+<script> 
   export default {
     data () {
       return {
         isfocus: false,
-        placeholder: ''
+        placeholder: '',
+        keyWords:"",
+        list:[],
+        history:uni.getStorageSync('history') ||   []
+        
       }
     },
     methods: {
@@ -65,6 +53,12 @@
         uni.hideTabBar();
       },
       goCancel () {
+        //点击取消清空input里的关键字
+        this.keyWords=""
+
+        // 取消 清空 搜索结果列表list
+            this.list=[]
+            
         // 取消 isfocus false 加上 active
         this.isfocus=false;
 
@@ -73,6 +67,34 @@
 
         // 显示tabBar
         uni.showTabBar();
+      },
+      async  query(){
+        console.log(this.keyWords);
+       let res=await this.http({
+          url:"/api/public/v1/goods/qsearch",
+          data:{
+            query:this.keyWords
+          }
+        })
+
+        console.log(res);
+        this.list=res.message
+        
+      },
+       goList(){
+         //按回车之前先把先把搜索过得关键字存到history里面
+         this.history.push(this.keyWords)
+         //  console.log(this.history);
+          //  去重之后存到本地
+          //去重
+         this.history =  [...new Set(this.history)]
+          //存到本地
+          wx.setStorageSync('history', this.history)
+         
+         uni.navigateTo({
+           //回到某一个页面用无线wx.navigateTo({ url: 'url',})
+           url: '/pages/list/index?query='+this.keyWords,
+         })
       }
     }
   }

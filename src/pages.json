@@ -30,7 +30,11 @@
       "path": "pages/goods/index"
     },
     {
-      "path": "pages/list/index"
+      "path": "pages/list/index",
+     "style":{
+      "navigationBarTitleText": "商品列表",
+      "onReachBottomDistance":50 // 距离 底部 50px时候 执行 上拉加载
+     }
     },
     {
       "path": "pages/order/index"

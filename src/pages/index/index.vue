@@ -3,18 +3,13 @@
       <!-- 搜索 -->
       <search @my="indexFather"></search>
       <!-- 轮播图 -->
-    
-      
-        
       <view class="swiper-box">
-          <swiper indicator-dots :autoplay="true">
-             
+          <swiper indicator-dots :autoplay="true">            
              <swiper-item v-for="item in swiperlist" :key="item.goods_id">
                 <navigator url="/pages/goods/index">
                     <image :src="item.image_src"></image>
                 </navigator>
              </swiper-item>
-
           </swiper>
       </view>
       <!-- 导航菜单宫格 -->
@@ -22,7 +17,8 @@
            <navigator 
             v-for="item in navslist"
             :key="item.navigator_url"
-            url="/pages/category/index">
+            url="/pages/category/index"
+            open-type="switchTab">
               <image :src="item.image_src"></image>
            </navigator>
 
